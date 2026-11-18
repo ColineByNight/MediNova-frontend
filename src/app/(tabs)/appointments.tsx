@@ -1,16 +1,24 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Modal, TextInput, Alert as RNAlert, Platform, KeyboardAvoidingView
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
 import AnimatedView from '@/components/AnimatedView';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAppointmentsStore } from '@/store/appointments.store';
 import { useThemeStore } from '@/store/theme.store';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Alert as RNAlert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 const SPECIALTIES = ['Cardiologie', 'Dermatologie', 'Généraliste', 'Pédiatrie'];

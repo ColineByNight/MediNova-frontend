@@ -1,26 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TouchableWithoutFeedback,
-  Keyboard, Modal, TextInput, Alert as RNAlert, Dimensions, Platform, ActivityIndicator
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
-import { LineChart } from 'react-native-gifted-charts';
 import AnimatedView from '@/components/AnimatedView';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
-import { useHealthStore, MeasurementType } from '@/store/health.store';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
+import { MeasurementType, useHealthStore } from '@/store/health.store';
 import { useThemeStore } from '@/store/theme.store';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState } from 'react';
+import {
+  ActivityIndicator,
+  Dimensions,
+  Keyboard, Modal,
+  Alert as RNAlert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity, TouchableWithoutFeedback,
+  View
+} from 'react-native';
+import { LineChart } from 'react-native-gifted-charts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
 
 const METRICS: Record<string, any> = {
   heart_rate: { label: 'Cœur', unit: 'bpm', icon: 'heart', color: '#E56B6F', soft: '#FBE3E3', normal: '60-100' },
-  blood_pressure: { label: 'Tension', unit: 'mmHg', icon: 'pulse', color: '#E67E22', soft: '#FDF2E9', normal: 'SYS / DIA' },
+  blood_pressure: { label: 'Tension', unit: 'mmHg', icon: 'pulse', color: '#E89F6E', soft: '#FDF2E9', normal: 'SYS / DIA' },
   weight: { label: 'Poids', unit: 'kg', icon: 'fitness', color: '#5E7F63', soft: '#DCE8DC', normal: 'Selon IMC' },
-  blood_sugar: { label: 'Glycémie', unit: 'g/L', icon: 'water', color: '#4A7BEB', soft: '#E8F0FC', normal: '0.7-1.1' },
+  blood_sugar: { label: 'Glycémie', unit: 'g/L', icon: 'water', color: '#99CDD8', soft: '#E8F0FC', normal: '0.7-1.1' },
 };
 
 export default function Health() {
@@ -28,6 +36,11 @@ export default function Health() {
   const isDark = useThemeStore((s) => s.isDark);
   const palette = isDark ? darkColors : colors;
   const activeGradients = isDark ? darkGradients : gradients;
+
+  // Style de boîte : blanc plein en mode clair, surface sombre en mode sombre
+  const boxStyle = isDark
+    ? { backgroundColor: palette.surface, borderColor: palette.glassBorder }
+    : { backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,0.05)' };
 
   const measurements = store.measurements || [];
   const addMeasurement = store.addMeasurement;
@@ -191,7 +204,7 @@ export default function Health() {
                 if (!m) return null;
                 const isActive = activeMetric === key;
                 return (
-                  <TouchableOpacity key={key} style={[ styles.metricChip, {  backgroundColor: isActive  ? m.color  : palette.surface,  borderColor: isActive  ? m.color  : palette.glassBorder, }, ]} onPress={() => setActiveMetric(key as MeasurementType)}>
+                  <TouchableOpacity key={key} style={[ styles.metricChip, {  backgroundColor: isActive  ? m.color  : isDark ? palette.surface : '#FFFFFF',  borderColor: isActive  ? m.color  : isDark ? palette.glassBorder : 'rgba(0,0,0,0.05)', }, ]} onPress={() => setActiveMetric(key as MeasurementType)}>
                     <Ionicons name={m.icon as any} size={18} color={isActive ? '#FFFFFF' : m.color}/>
                     <Text style={[ styles.metricChipText, { color: isActive ? '#FFFFFF' : palette.text }, ]}>{m.label}</Text>
                   </TouchableOpacity>
@@ -202,7 +215,7 @@ export default function Health() {
 
 
           <AnimatedView delay={300} animation="zoom">
-            <BlurView intensity={isDark ? 20 : 50} tint={isDark ? 'dark' : 'light'} style={[ styles.chartCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, }, ]}>
+            <View style={[ styles.chartCard, boxStyle, ]}>
               <View style={styles.chartHeader}>
                 <View>
                   <Text style={[styles.chartTitle, { color: palette.text }]}>{currentConfig.label}</Text>
@@ -237,11 +250,11 @@ export default function Health() {
                     width={chartWidth}
                     height={180}
                     color={currentConfig.color}
-                    color2="#4A7BEB"
+                    color2="#99CDD8"
                     thickness={4}
                     hideDataPoints={false}
                     dataPointsColor={currentConfig.color}
-                    dataPointsColor2="#4A7BEB"
+                    dataPointsColor2="#99CDD8"
                     dataPointsRadius={4}
                     curved
                     areaChart
@@ -270,7 +283,7 @@ export default function Health() {
 
                       <View style={styles.statItem}>
                         <Text style={[styles.statLabel, { color: palette.textMuted }]}>Diastolique</Text>
-                        <Text style={[styles.statValue, { color: '#4A7BEB' }]}>
+                        <Text style={[styles.statValue, { color: '#99CDD8' }]}>
                           {filteredData.length
                             ? filteredData[filteredData.length - 1].diastolic
                             : '--'}
@@ -303,7 +316,7 @@ export default function Health() {
                   )}
                 </>
               )}
-            </BlurView>
+            </View>
           </AnimatedView>
 
 
@@ -330,7 +343,7 @@ export default function Health() {
 
               return (
                 <AnimatedView key={m._id} delay={450 + index * 50} animation="up">
-                  <BlurView intensity={isDark ? 20 : 40} tint={isDark ? 'dark' : 'light'} style={[ styles.listCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, }, ]}>
+                  <View style={[ styles.listCard, boxStyle, ]}>
                     <View style={[styles.listIcon, { backgroundColor: config.soft, },]}>
                       <Ionicons name={config.icon as any} size={20} color={config.color} />
                     </View>
@@ -357,7 +370,7 @@ export default function Health() {
                     <TouchableOpacity onPress={() => handleDelete(m._id)} style={styles.deleteBtn}>
                       <Ionicons name="trash-outline" size={18} color={colors.danger} />
                     </TouchableOpacity>
-                  </BlurView>
+                  </View>
                 </AnimatedView>
               );
             })
@@ -543,10 +556,10 @@ const styles = StyleSheet.create({
   addBtn: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.primaryDark, alignItems: 'center', justifyContent: 'center', ...shadows.strong },
 
   metricsRow: { gap: 10, paddingBottom: spacing.lg },
-  metricChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.6)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)', ...shadows.soft },
+  metricChip: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', ...shadows.soft },
   metricChipText: { ...typography.body, fontWeight: '600', color: colors.textMuted },
 
-  chartCard: { borderRadius: radius.xl, padding: spacing.lg, backgroundColor: 'rgba(255,255,255,0.6)', borderWidth: 1, borderColor: '#FFF', ...shadows.soft, marginBottom: spacing.lg },
+  chartCard: { borderRadius: radius.xl, padding: spacing.lg, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', ...shadows.soft, marginBottom: spacing.lg },
   chartHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.lg },
   chartTitle: { ...typography.subtitle, fontWeight: '800', color: colors.primaryDeeper, fontSize: 20 },
   chartSub: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
@@ -563,7 +576,7 @@ const styles = StyleSheet.create({
   sectionTitle: { ...typography.subtitle, fontWeight: '700', color: colors.primaryDeeper },
   sectionCount: { ...typography.caption, color: colors.textMuted, fontWeight: '600' },
 
-  listCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.6)', borderWidth: 1, borderColor: '#FFF', ...shadows.soft, marginBottom: spacing.sm },
+  listCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radius.lg, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', ...shadows.soft, marginBottom: spacing.sm },
   listIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   listTitle: { ...typography.body, fontWeight: '700', color: colors.primaryDeeper },
   listDate: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
@@ -572,7 +585,7 @@ const styles = StyleSheet.create({
   deleteBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(217,83,79,0.08)', alignItems: 'center', justifyContent: 'center' },
 
   emptyContainer: { alignItems: 'center', marginTop: spacing.xl, padding: spacing.lg },
-  emptyIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.8)', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, ...shadows.soft },
+  emptyIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md, ...shadows.soft },
   emptyText: { ...typography.subtitle, fontWeight: '700', color: colors.primaryDeeper },
   emptySub: { ...typography.caption, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
 
@@ -602,7 +615,7 @@ const styles = StyleSheet.create({
   helperText: { ...typography.caption, color: 'rgba(255,255,255,0.7)', marginBottom: spacing.md, lineHeight: 20, },
   mealTimingRow: { flexDirection: 'row', gap: 10, marginBottom: spacing.lg, },
   mealTimingOption: { flex: 1, padding: spacing.md, borderRadius: radius.md, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', },
-  mealTimingOptionActive: { backgroundColor: 'rgba(74,123,235,0.25)', borderColor: '#4A7BEB', },
+  mealTimingOptionActive: { backgroundColor: 'rgba(74,123,235,0.25)', borderColor: '#99CDD8', },
   mealTimingText: { color: '#FFF', fontWeight: '700', textAlign: 'center', },
   mealTimingTextActive: { color: '#8EB5FF', },
   mealTimingDescription: { color: 'rgba(255,255,255,0.55)', fontSize: 11, textAlign: 'center', marginTop: 4, },

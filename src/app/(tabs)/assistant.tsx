@@ -1,17 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, Animated, Dimensions, Alert
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAIStore } from '@/store/ai.store';
 import { useAuthStore } from '@/store/auth.store';
 import { useThemeStore } from '@/store/theme.store';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Animated, Dimensions,
+  KeyboardAvoidingView, Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput, TouchableOpacity,
+  View
+} from 'react-native';
 import Markdown from 'react-native-markdown-display';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +31,11 @@ export default function Assistant() {
   const isDark = useThemeStore((s) => s.isDark);
   const palette = isDark ? darkColors : colors;
   const activeGradients = isDark ? darkGradients : gradients;
+
+  // Style de boîte : blanc plein en mode clair, surface sombre en mode sombre
+  const boxStyle = isDark
+    ? { backgroundColor: palette.surface, borderColor: palette.glassBorder }
+    : { backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,0.05)' };
 
   useEffect(() => {
     loadMessages();
@@ -89,7 +99,7 @@ export default function Assistant() {
                 </View>
               </View>
             </View>
-            <TouchableOpacity style={[styles.menuBtn, isDark && { backgroundColor: palette.surface },]}>
+            <TouchableOpacity style={[styles.menuBtn, boxStyle, { borderWidth: 1 }]}>
               <Ionicons name="ellipsis-horizontal" size={20} color={palette.primaryDark} />
             </TouchableOpacity>
           </View>
@@ -113,7 +123,7 @@ export default function Assistant() {
 
                 <View style={styles.suggestionsContainer}>
                   {suggestions.map((s, i) => (
-                    <TouchableOpacity key={i} style={[ styles.suggestionBtn, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, }, ]} onPress={() => handleSend(s)}>
+                    <TouchableOpacity key={i} style={[ styles.suggestionBtn, boxStyle, ]} onPress={() => handleSend(s)}>
                       <Ionicons name="chatbubble-outline" size={16} color={palette.primary} />
                       <Text style={[styles.suggestionText, { color: palette.primaryDark }]}>{s}</Text>
                     </TouchableOpacity>
@@ -129,16 +139,13 @@ export default function Assistant() {
                     <Ionicons name="sparkles" size={14} color={palette.primary} />
                   </View>
                 )}
-                <BlurView intensity={m.role === 'user' ? 0 : isDark ? 20 : 40} tint={isDark ? 'dark' : 'light'}
+                <View
                   style={[
                     styles.msgBubble,
                     m.role === 'user' ? styles.bubbleUser : styles.bubbleBot,
                     m.role === 'user'
                       ? { backgroundColor: isDark ? '#456B4D' : colors.primaryDark }
-                      : isDark ? {
-                        backgroundColor: palette.surface,
-                        borderColor: palette.glassBorder,
-                      } : {}, 
+                      : boxStyle,
                   ]}
                 >
                   {m.role === 'user' ? (
@@ -164,25 +171,25 @@ export default function Assistant() {
                       {m.content}
                     </Markdown>
                   )}
-                </BlurView>
+                </View>
               </View>
             ))}
 
             {isTyping && (
               <View style={[styles.msgWrap, styles.msgBot]}>
-                <View style={styles.botIcon}>
+                <View style={[ styles.botIcon, isDark && { backgroundColor: palette.primarySoft }, ]}>
                   <Ionicons name="sparkles" size={14} color={colors.primary} />
                 </View>
-                <BlurView intensity={isDark ? 20 : 40} tint={isDark ? 'dark' : 'light'} style={[ styles.msgBubble, styles.bubbleBot, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, }, ]}>
+                <View style={[ styles.msgBubble, styles.bubbleBot, boxStyle, ]}>
                   <Text style={[styles.typingText, { color: palette.textMuted }]}>MediNova IA réfléchit...</Text>
-                </BlurView>
+                </View>
               </View>
             )}
           </ScrollView>
 
 
           <View style={styles.inputContainer}>
-            <BlurView intensity={isDark ? 25 : 60} tint={isDark ? 'dark' : 'light'} style={[ styles.inputArea, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, }, ]}>
+            <View style={[ styles.inputArea, boxStyle, ]}>
               <TouchableOpacity style={styles.attachBtn}>
                 <Ionicons name="add" size={24} color={palette.textMuted} />
               </TouchableOpacity>
@@ -204,7 +211,7 @@ export default function Assistant() {
                   <Ionicons name="arrow-up" size={20} color="#FFF" />
                 </LinearGradient>
               </TouchableOpacity>
-            </BlurView>
+            </View>
             <Text style={[styles.disclaimerText, { color: palette.textMuted }]}>
               MediNova IA peut faire des erreurs. Vérifiez les informations importantes.
             </Text>
@@ -239,7 +246,7 @@ const styles = StyleSheet.create({
   statusText: { ...typography.caption, color: colors.success, fontWeight: '600' },
   menuBtn: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center', justifyContent: 'center',
     ...shadows.soft
   },
@@ -258,9 +265,9 @@ const styles = StyleSheet.create({
   suggestionsContainer: { width: '100%', gap: 10 },
   suggestionBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: '#FFFFFF',
     padding: 16, borderRadius: radius.lg,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.9)',
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)',
     ...shadows.soft
   },
   suggestionText: { ...typography.body, color: colors.primaryDark, fontWeight: '500', flex: 1 },
@@ -276,10 +283,11 @@ const styles = StyleSheet.create({
   },
   msgBubble: {
     maxWidth: '80%', padding: spacing.md, borderRadius: 24,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)',
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)',
+    overflow: 'hidden',
   },
   bubbleUser: { borderBottomRightRadius: 6 },
-  bubbleBot: { borderBottomLeftRadius: 6, backgroundColor: 'rgba(255,255,255,0.85)' },
+  bubbleBot: { borderBottomLeftRadius: 6, backgroundColor: '#FFFFFF' },
   msgText: { ...typography.body, lineHeight: 22, fontSize: 15 },
   textUser: { color: '#FFF' },
   textBot: { color: colors.text },
@@ -289,8 +297,8 @@ const styles = StyleSheet.create({
   inputArea: {
     flexDirection: 'row', alignItems: 'center',
     padding: 8, borderRadius: 32,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    borderWidth: 1, borderColor: '#FFF',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)',
     ...shadows.strong
   },
   attachBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },

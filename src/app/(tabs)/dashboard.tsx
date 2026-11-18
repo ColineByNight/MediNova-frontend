@@ -1,24 +1,31 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  TextInput, Animated, RefreshControl, Modal
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { LineChart } from 'react-native-gifted-charts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import AnimatedView from '@/components/AnimatedView';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
-import { useAuthStore } from '@/store/auth.store';
-import { useThemeStore } from '@/store/theme.store';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAlertsStore } from '@/store/alerts.store';
-import { useHealthStore } from '@/store/health.store';
 import { useAppointmentsStore } from '@/store/appointments.store';
+import { useAuthStore } from '@/store/auth.store';
+import { useHealthStore } from '@/store/health.store';
 import { useMedicationsStore } from '@/store/medications.store';
 import { useNotificationsStore } from '@/store/notifications.store';
+import { useThemeStore } from '@/store/theme.store';
 
 const METRICS: Record<string, any> = {
   heart_rate: { label: 'Cœur', unit: 'bpm', icon: 'heart', color: '#E56B6F', soft: '#FBE3E3', normal: [60, 100] },
@@ -511,7 +518,7 @@ export default function Dashboard() {
 
           <AnimatedView delay={230} animation="up">
             <TouchableOpacity style={styles.emergencyBtn} onPress={() => router.push('/urgency')} activeOpacity={0.9}>
-              <LinearGradient colors={['#E53E3E', '#C53030']} style={styles.emergencyGradient}>
+              <LinearGradient colors={['#BE4039', '#BE4039']} style={styles.emergencyGradient}>
                 <Ionicons name="alert-circle" size={20} color="#FFF" />
                 <Text style={styles.emergencyText}>URGENCE</Text>
                 <Ionicons name="call" size={18} color="#FFF" />
@@ -644,7 +651,7 @@ export default function Dashboard() {
           </Modal>
 
           <AnimatedView delay={400} animation="up" style={styles.tipCard}>
-            <LinearGradient colors={ isDark  ? ['#b98525', '#996b15']  : ['#f5d142', '#F59E0B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.tipGradient}>
+            <LinearGradient colors={ isDark  ? ['#b98525', '#996b15']  : ['#dac262', '#F59E0B']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.tipGradient}>
               <View style={styles.tipIcon}><Ionicons name="bulb" size={24} color="#FFF" /></View>
               <View style={{ flex: 1, marginLeft: 12 }}>
                 <Text style={styles.tipLabel}>CONSEIL DU JOUR</Text>
@@ -665,37 +672,54 @@ export default function Dashboard() {
               const isAlert = false;
               const chartData = chartDataByType[key] || [];
 
+              // Contenu commun de la carte
+              const cardContent = (
+                <>
+                  <View style={styles.metricHead}>
+                    <View style={[styles.chip, { backgroundColor: isDark ? palette.primarySoft : c.soft }]}>
+                      <Ionicons name={c.icon} size={16} color={c.color} />
+                    </View>
+                    {isAlert && <Ionicons name="warning" size={16} color="#E67E22" />}
+                  </View>
+                  <Text style={[styles.metricLabel, { color: palette.textMuted }]}>{c.label}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                    <Text
+                      style={[styles.metricValue, { color: palette.text }, key === 'blood_pressure' && { fontSize: 20 }, isAlert && { color: '#E67E22' }]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.75}
+                    >
+                      {m
+                        ? key === 'blood_pressure'
+                          ? `${m.systolic ?? '--'}/${m.diastolic ?? '--'}`
+                          : m.value
+                        : '—'}
+                    </Text>
+                    <Text style={[styles.metricUnit, { color: palette.textMuted }]}> {c.unit}</Text>
+                  </View>
+                  {chartData.length > 1 && (
+                    <View style={styles.metricChart}>
+                      <LineChart data={chartData} width={130} height={30} color={c.color} thickness={2} hideDataPoints hideYAxisText hideAxesAndRules curved initialSpacing={0} spacing={18} />
+                    </View>
+                  )}
+                  <Text style={[styles.metricDate, { color: palette.textMuted }]}>{m ? timeAgo(m.date) : 'Aucune donnée'}</Text>
+                </>
+              );
+
               return (
                 <AnimatedView key={key} delay={460 + idx * 70} animation="zoom">
                   <TouchableOpacity activeOpacity={0.9} onPress={() => router.push('/(tabs)/health')} style={{ width: 180 }}>
-                    <BlurView intensity={isDark ? 20 : 40} tint={isDark ? 'dark' : 'light'} style={[styles.glass, styles.metricCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder, },]}>
-                      <View style={styles.metricHead}>
-                        <View style={[styles.chip, { backgroundColor: isDark ? palette.primarySoft : c.soft, }]}><Ionicons name={c.icon} size={16} color={c.color} /></View>
-                        {isAlert && <Ionicons name="warning" size={16} color="#E67E22" />}
-                      </View>
-                      <Text style={[styles.metricLabel, { color: palette.textMuted }]}>{c.label}</Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                        <Text
-                          style={[styles.metricValue, { color: palette.text }, key === 'blood_pressure' && { fontSize: 20 }, isAlert && { color: '#E67E22' }, ]}
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          minimumFontScale={0.75}
-                        >
-                          {m
-                            ? key === 'blood_pressure'
-                              ? `${m.systolic ?? '--'}/${m.diastolic ?? '--'}`
-                              : m.value
-                            : '—'}
-                        </Text>
-                        <Text style={[styles.metricUnit, { color: palette.textMuted }]}> {c.unit}</Text>
-                      </View>
-                      {chartData.length > 1 && (
-                        <View style={styles.metricChart}>
-                          <LineChart data={chartData} width={130} height={30} color={c.color} thickness={2} hideDataPoints hideYAxisText hideAxesAndRules curved initialSpacing={0} spacing={18}/>
-                        </View>
-                      )}
-                      <Text style={[styles.metricDate, { color: palette.textMuted }]}>{m ? timeAgo(m.date) : 'Aucune donnée'}</Text>
-                    </BlurView>
+                    <View
+                      style={[
+                        styles.metricCard,
+                        styles.metricCardBox,
+                        isDark
+                          ? { backgroundColor: palette.surface, borderColor: palette.glassBorder }
+                          : { backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,0.05)' },
+                      ]}
+                    >
+                      {cardContent}
+                    </View>
                   </TouchableOpacity>
                 </AnimatedView>
               );
@@ -729,7 +753,7 @@ export default function Dashboard() {
             </AnimatedView>
           ) : (
             <AnimatedView delay={750} animation="fade">
-              <View style={[ styles.emptyCard, isDark && { backgroundColor: palette.surface }, ]}><Ionicons name="calendar-outline" size={28} color={palette.textMuted} /><Text style={[styles.emptyText, { color: palette.textMuted }]}>Aucun rendez-vous prévu</Text></View>
+              <View style={[ styles.emptyCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder }, ]}><Ionicons name="calendar-outline" size={28} color={palette.textMuted} /><Text style={[styles.emptyText, { color: palette.textMuted }]}>Aucun rendez-vous prévu</Text></View>
             </AnimatedView>
           )}
 
@@ -761,7 +785,7 @@ export default function Dashboard() {
             </AnimatedView>
           ) : (
             <AnimatedView delay={850} animation="fade">
-              <View style={[ styles.emptyCard, isDark && { backgroundColor: palette.surface }, ]}><Ionicons name="medkit-outline" size={28} color={palette.textMuted} /><Text style={[styles.emptyText, { color: palette.textMuted }]}>Aucun médicament aujourd'hui</Text></View>
+              <View style={[ styles.emptyCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder }, ]}><Ionicons name="medkit-outline" size={28} color={palette.textMuted} /><Text style={[styles.emptyText, { color: palette.textMuted }]}>Aucun médicament aujourd'hui</Text></View>
             </AnimatedView>
           )}
 
@@ -841,6 +865,11 @@ const styles = StyleSheet.create({
   chip: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   
   metricCard: {  padding: spacing.md,  height: 180,},
+  metricCardBox: {
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    ...shadows.soft,
+  },
   metricHead: {  flexDirection: 'row',  justifyContent: 'space-between',  alignItems: 'center',},
   metricLabel: {  ...typography.caption,  color: colors.textMuted,  marginTop: 8,},
   metricValue: {  fontSize: 26,  fontWeight: '800',  color: colors.primaryDeeper,  letterSpacing: -0.6,},
@@ -864,7 +893,7 @@ const styles = StyleSheet.create({
   medCheck: { width: 22, height: 22, borderRadius: 16, borderWidth: 2, borderColor: "#4f82e877", alignItems: 'center', justifyContent: 'center' },
   medCheckDone: { backgroundColor: "#4F83E8", borderColor: "#4F83E8" },
 
-  emptyCard: { alignItems: 'center', padding: spacing.lg, borderRadius: radius.lg, backgroundColor: 'rgba(255,255,255,0.5)', gap: 8 },
+  emptyCard: { alignItems: 'center', padding: spacing.lg, borderRadius: radius.lg, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', gap: 8 },
   emptyText: { ...typography.body, color: colors.textMuted },
 
   scoreModalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', padding: 20 },

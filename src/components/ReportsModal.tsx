@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
+import { useEffect, useState } from 'react';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import * as FileSystem from 'expo-file-system/legacy';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
-import { useThemeStore } from '@/store/theme.store';
-import { useReportsStore } from '@/store/reports.store';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/store/auth.store';
+import { useReportsStore } from '@/store/reports.store';
+import { useThemeStore } from '@/store/theme.store';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const METRIC_LABELS: Record<string, { label: string; color: string }> = {
   heart_rate: { label: 'Cœur', color: '#E56B6F' },
-  blood_pressure: { label: 'Tension', color: '#E67E22' },
+  blood_pressure: { label: 'Tension', color: '#E89F6E' },
   weight: { label: 'Poids', color: '#5E7F63' },
-  blood_sugar: { label: 'Glycémie', color: '#4A7BEB' },
+  blood_sugar: { label: 'Glycémie', color: '#99CDD8' },
 };
 
 export default function ReportsModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
@@ -69,8 +69,8 @@ export default function ReportsModal({ visible, onClose }: { visible: boolean; o
 
         const valuesHtml = type === 'blood_pressure'
           ? `
-            ${s.systolic ? renderValues('Systolique', s.systolic, '#E67E22') : ''}
-            ${s.diastolic ? renderValues('Diastolique', s.diastolic, '#4A7BEB') : ''}
+            ${s.systolic ? renderValues('Systolique', s.systolic, '#E89F6E') : ''}
+            ${s.diastolic ? renderValues('Diastolique', s.diastolic, '#99CDD8') : ''}
           `
           : renderValues('', { min: s.min!, avg: s.avg!, max: s.max! }, meta.color);
 
@@ -443,7 +443,7 @@ export default function ReportsModal({ visible, onClose }: { visible: boolean; o
                         <>
                           {stat.systolic && (
                             <>
-                              <Text style={[styles.statLabel, { color: '#E67E22' }]}>Systolique</Text>
+                              <Text style={[styles.statLabel, { color: '#E89F6E' }]}>Systolique</Text>
                               <View style={styles.statRow}>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Min</Text>
@@ -451,7 +451,7 @@ export default function ReportsModal({ visible, onClose }: { visible: boolean; o
                                 </View>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Moyenne</Text>
-                                  <Text style={[styles.statBoxValue, { color: '#E67E22' }]}>{stat.systolic.avg.toFixed(1)}</Text>
+                                  <Text style={[styles.statBoxValue, { color: '#E89F6E' }]}>{stat.systolic.avg.toFixed(1)}</Text>
                                 </View>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Max</Text>
@@ -462,7 +462,7 @@ export default function ReportsModal({ visible, onClose }: { visible: boolean; o
                           )}
                           {stat.diastolic && (
                             <>
-                              <Text style={[styles.statLabel, { color: '#4A7BEB' }]}>Diastolique</Text>
+                              <Text style={[styles.statLabel, { color: '#99CDD8' }]}>Diastolique</Text>
                               <View style={styles.statRow}>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Min</Text>
@@ -470,7 +470,7 @@ export default function ReportsModal({ visible, onClose }: { visible: boolean; o
                                 </View>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Moyenne</Text>
-                                  <Text style={[styles.statBoxValue, { color: '#4A7BEB' }]}>{stat.diastolic.avg.toFixed(1)}</Text>
+                                  <Text style={[styles.statBoxValue, { color: '#99CDD8' }]}>{stat.diastolic.avg.toFixed(1)}</Text>
                                 </View>
                                 <View style={styles.statBox}>
                                   <Text style={styles.statBoxLabel}>Max</Text>

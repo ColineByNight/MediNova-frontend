@@ -1,27 +1,34 @@
-import { API_ENDPOINTS } from '../../config/api';
-import React, { useRef, useEffect, useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Dimensions, Modal, TextInput, Switch, Alert
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import Svg, { Circle, Defs, LinearGradient as SvgLinearGradient, Stop } from 'react-native-svg';
-import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Alert,
+  Animated, Dimensions, Modal,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import Svg, { Circle, Defs, Stop, LinearGradient as SvgLinearGradient } from 'react-native-svg';
+import { API_ENDPOINTS } from '../../config/api';
 
 
-import MedicationsModal from '@/components/MedicationsModal';
-import MedicalRecordModal from '@/components/MedicalRecordModal';
 import AnalysesModal from '@/components/AnalysesModal';
-import EmergencyModal from '@/components/EmergencyModal';
-import ReportsModal from '@/components/ReportsModal';
 import CalendarModal from '@/components/CalendarModal';
+import EmergencyModal from '@/components/EmergencyModal';
+import MedicalRecordModal from '@/components/MedicalRecordModal';
+import MedicationsModal from '@/components/MedicationsModal';
+import ReportsModal from '@/components/ReportsModal';
 
 
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/store/auth.store';
 import { useThemeStore } from '@/store/theme.store';
 
@@ -60,6 +67,11 @@ export default function Profile() {
   const palette = isDark ? darkColors : colors;
   const activeGradients = isDark ? darkGradients : gradients;
   const styles = createStyles(palette);
+
+  // Style de boîte : blanc plein en mode clair, surface sombre en mode sombre
+  const boxStyle = isDark
+    ? { backgroundColor: palette.surface, borderColor: palette.glassBorder }
+    : { backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,0.05)' };
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -313,7 +325,7 @@ export default function Profile() {
       case 'notifications':
         return (
           <>
-            <View style={styles.modalHeader}><View style={[styles.modalIconWrapper, { backgroundColor: '#E8F0FC' }]}><Ionicons name="notifications" size={24} color="#4A7BEB" /></View><Text style={styles.modalTitle}>Notifications</Text></View>
+            <View style={styles.modalHeader}><View style={[styles.modalIconWrapper, { backgroundColor: '#E8F0FC' }]}><Ionicons name="notifications" size={24} color="#99CDD8" /></View><Text style={styles.modalTitle}>Notifications</Text></View>
             <Text style={styles.modalSubtitle}>Gérez vos alertes.</Text>
             <View style={styles.settingRow}>
               <View><Text style={styles.settingTitle}>Notifications Push</Text><Text style={styles.settingDesc}>Alertes de santé</Text></View>
@@ -331,7 +343,7 @@ export default function Profile() {
           <>
             <View style={styles.modalHeader}>
               <View style={[styles.modalIconWrapper, { backgroundColor: '#FDF2E9' }]}>
-                <Ionicons name="shield-checkmark" size={24} color="#E67E22" />
+                <Ionicons name="shield-checkmark" size={24} color="#E89F6E" />
               </View>
               <Text style={styles.modalTitle}>Confidentialité</Text>
             </View>
@@ -463,7 +475,7 @@ export default function Profile() {
           </View>
 
 
-          <BlurView intensity={isDark ? 20 : 60} tint={isDark ? 'dark' : 'light'} style={[ styles.mainCard, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder }, ]}>
+          <View style={[ styles.mainCard, boxStyle, ]}>
             <View style={styles.avatarWrapper}>
               <LinearGradient colors={gradients.gold} style={styles.avatarRing}>
                 <View style={styles.avatarInner}><Ionicons name="person" size={40} color={palette.primaryDark} /></View>
@@ -478,10 +490,10 @@ export default function Profile() {
                 <Text style={styles.editBtnText}>Modifier le profil</Text>
               </LinearGradient>
             </TouchableOpacity>
-          </BlurView>
+          </View>
 
           <Text style={[styles.sectionTitle, { color: palette.text }]}>Paramètres</Text>
-          <BlurView intensity={isDark ? 20 : 60} tint={isDark ? 'dark' : 'light'} style={[ styles.menuContainer, isDark && { backgroundColor: palette.surface, borderColor: palette.glassBorder }, ]}>
+          <View style={[ styles.menuContainer, boxStyle, ]}>
             <TouchableOpacity style={styles.menuItem} onPress={() => setShowMedicalRecord(true)}>
               <View style={[styles.menuIconWrapper, { backgroundColor: '#E8FCE8' }]}>
                 <Ionicons name="medical" size={20} color={palette.primary} />
@@ -494,7 +506,7 @@ export default function Profile() {
 
             <TouchableOpacity style={styles.menuItem} onPress={() => setShowMedications(true)}>
               <View style={[styles.menuIconWrapper, { backgroundColor: '#E8F0FC' }]}>
-                <Ionicons name="medkit" size={20} color="#4A7BEB" />
+                <Ionicons name="medkit" size={20} color="#99CDD8" />
               </View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>Mes médicaments</Text>
               <Ionicons name="chevron-forward" size={20} color={palette.textMuted} />
@@ -566,11 +578,11 @@ export default function Profile() {
             <View style={styles.menuDivider} />
 
             <TouchableOpacity style={styles.menuItem} onPress={() => setActiveModal('privacy')}>
-              <View style={[styles.menuIconWrapper, { backgroundColor: '#FDF2E9' }]}><Ionicons name="shield-checkmark" size={20} color="#E67E22" /></View>
+              <View style={[styles.menuIconWrapper, { backgroundColor: '#FDF2E9' }]}><Ionicons name="shield-checkmark" size={20} color="#E89F6E" /></View>
               <Text style={[styles.menuLabel, { color: palette.text }]}>Confidentialité</Text>
               <Ionicons name="chevron-forward" size={20} color={palette.textMuted} />
             </TouchableOpacity>
-          </BlurView>
+          </View>
 
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={20} color={palette.danger} />
@@ -619,7 +631,7 @@ const createStyles = (palette: typeof colors) => StyleSheet.create({
   headerSubtitle: { ...typography.caption, color: palette.textMuted, textTransform: 'uppercase', letterSpacing: 1.5 },
   headerTitle: { ...typography.display, color: palette.primaryDeeper },
 
-  mainCard: { borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.glassBorder, ...shadows.soft, overflow: 'hidden' },
+  mainCard: { borderRadius: radius.xl, padding: spacing.xl, alignItems: 'center', backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.glassBorder, ...shadows.soft },
 
   avatarWrapper: { marginBottom: spacing.md, position: 'relative' },
   avatarRing: { width: 110, height: 110, borderRadius: 55, alignItems: 'center', justifyContent: 'center', ...shadows.strong },
@@ -633,7 +645,7 @@ const createStyles = (palette: typeof colors) => StyleSheet.create({
   editBtnText: { ...typography.subtitle, color: '#FFF', fontWeight: '700' },
   sectionTitle: { ...typography.subtitle, fontWeight: '700', color: palette.primaryDeeper, marginTop: spacing.xl, marginBottom: spacing.md, marginLeft: 4 },
 
-  menuContainer: { borderRadius: radius.lg, backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.glassBorder, ...shadows.soft, overflow: 'hidden' },
+  menuContainer: { borderRadius: radius.lg, backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.glassBorder, ...shadows.soft },
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, paddingVertical: 16 },
   menuIconWrapper: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginRight: spacing.md },
   menuLabel: { flex: 1, ...typography.body, fontWeight: '600', color: palette.text },

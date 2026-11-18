@@ -1,18 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Keyboard, TouchableWithoutFeedback,
-  Animated, Easing, Dimensions, Pressable, Modal, Alert, StatusBar,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { Ionicons } from '@expo/vector-icons';
-import { Link, useRouter } from 'expo-router';
 import { colors, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/store/auth.store';
-import SplashIntro from '@/components/SplashIntro';
-import VitalisLogo from '@/components/VitalisLogo';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Link, useRouter } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Dimensions,
+  Easing,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text, TextInput, TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import SplashIntro from '../../components/SplashIntro';
+import VitalisLogo from '../../components/VitalisLogo';
 
 const { height: SCREEN_H } = Dimensions.get('window');
 const LOGO_SIZE = 76;

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, TextInput, Linking, Alert } from 'react-native';
+import { radius, shadows, spacing, typography } from '@/constants/theme';
+import { useEmergencyStore } from '@/store/emergency.store';
+import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
-import { useEmergencyStore } from '@/store/emergency.store';
+import { useEffect, useState } from 'react';
+import { Alert, Linking, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function EmergencyModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { info, loadInfo, updateInfo } = useEmergencyStore();
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   backBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' },
   title: { ...typography.title },
   addBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.15)', alignItems: 'center', justifyContent: 'center' },
-  callBtn: { backgroundColor: '#E53E3E', borderRadius: radius.lg, padding: spacing.lg, alignItems: 'center', marginBottom: spacing.lg, ...shadows.strong },
+  callBtn: { backgroundColor: '#BE4039', borderRadius: radius.lg, padding: spacing.lg, alignItems: 'center', marginBottom: spacing.lg, ...shadows.strong },
   callText: { color: '#FFF', fontWeight: '800', marginTop: 8, fontSize: 14 },
   card: { borderRadius: radius.lg, padding: spacing.lg, backgroundColor: 'rgba(255,255,255,0.1)', marginBottom: spacing.md, borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)' },
   label: { ...typography.caption, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: '700', marginBottom: 8 },

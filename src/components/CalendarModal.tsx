@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, darkColors, gradients, darkGradients, radius, shadows, spacing, typography } from '@/constants/theme';
-import { useThemeStore } from '@/store/theme.store';
+import { colors, darkColors, darkGradients, gradients, radius, shadows, spacing, typography } from '@/constants/theme';
 import { useAppointmentsStore } from '@/store/appointments.store';
 import { useMedicationsStore } from '@/store/medications.store';
+import { useThemeStore } from '@/store/theme.store';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DAYS_SHORT = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -16,6 +15,12 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
   const palette = isDark ? darkColors : colors;
   const activeGradients = isDark ? darkGradients : gradients;
   const styles = createStyles(palette);
+
+  // Style de boîte : blanc plein en mode clair, surface sombre en mode sombre
+  const boxStyle = isDark
+    ? { backgroundColor: palette.surface, borderColor: palette.glassBorder }
+    : { backgroundColor: '#FFFFFF', borderColor: 'rgba(0,0,0,0.05)' };
+
   const { appointments, loadAppointments } = useAppointmentsStore();
   const { medications, loadMedications } = useMedicationsStore();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -55,7 +60,7 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
           type: 'medication',
           title: m.name,
           time: t,
-          color: '#4A7BEB',
+          color: '#99CDD8',
         });
       });
       cur.setDate(cur.getDate() + 1);
@@ -113,7 +118,7 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
           </View>
 
 
-          <BlurView intensity={40} tint={isDark ? "dark" : "light"} style={styles.calendar}>
+          <View style={[styles.calendar, boxStyle]}>
             <View style={styles.daysGrid}>
               {days.map((day, i) => {
                 if (!day) return <View key={`empty-${i}`} style={styles.dayCell} />;
@@ -138,7 +143,7 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
                 );
               })}
             </View>
-          </BlurView>
+          </View>
 
 
           <View style={styles.legend}>
@@ -147,7 +152,7 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
               <Text style={styles.legendText}>Rendez-vous</Text>
             </View>
             <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: '#4A7BEB' }]} />
+              <View style={[styles.legendDot, { backgroundColor: '#99CDD8' }]} />
               <Text style={styles.legendText}>Médicaments</Text>
             </View>
           </View>
@@ -155,12 +160,12 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
 
           <Text style={styles.sectionTitle}>Aujourd'hui</Text>
           {eventsByDay[today]?.length === 0 || !eventsByDay[today] ? (
-            <View style={styles.emptyCard}>
+            <View style={[styles.emptyCard, boxStyle]}>
               <Text style={styles.emptyText}>Aucun événement aujourd'hui.</Text>
             </View>
           ) : (
             eventsByDay[today].map((event, idx) => (
-              <BlurView key={idx} intensity={50} tint={isDark ? "dark" : "light"} style={styles.eventCard}>
+              <View key={idx} style={[styles.eventCard, boxStyle]}>
                 <View style={[styles.eventIcon, { backgroundColor: event.color + '22' }]}>
                   <Ionicons name={event.type === 'appointment' ? 'calendar' : 'medkit'} size={18} color={event.color} />
                 </View>
@@ -168,7 +173,7 @@ export default function CalendarModal({ visible, onClose }: { visible: boolean; 
                   <Text style={styles.eventTitle}>{event.title}</Text>
                   <Text style={styles.eventTime}>{event.time}</Text>
                 </View>
-              </BlurView>
+              </View>
             ))
           )}
         </ScrollView>
@@ -190,7 +195,7 @@ const createStyles = (palette: typeof colors) => StyleSheet.create({
   weekRow: { flexDirection: 'row', marginBottom: spacing.sm },
   weekDay: { flex: 1, textAlign: 'center', ...typography.caption, fontWeight: '700', color: palette.textMuted },
 
-  calendar: { borderRadius: radius.lg, padding: spacing.md, backgroundColor: palette.surface, ...shadows.soft, marginBottom: spacing.md },
+  calendar: { borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, ...shadows.soft, marginBottom: spacing.md },
   daysGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   dayCell: { width: '14.28%', aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
   dayNum: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
@@ -206,11 +211,11 @@ const createStyles = (palette: typeof colors) => StyleSheet.create({
 
   sectionTitle: { ...typography.subtitle, fontWeight: '700', color: palette.primaryDeeper, marginBottom: spacing.md },
 
-  eventCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radius.lg, backgroundColor: palette.surface, marginBottom: spacing.sm, ...shadows.soft },
+  eventCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.md, borderRadius: radius.lg, borderWidth: 1, marginBottom: spacing.sm, ...shadows.soft },
   eventIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   eventTitle: { ...typography.body, fontWeight: '700', color: palette.primaryDeeper },
   eventTime: { ...typography.caption, color: palette.textMuted, marginTop: 2 },
 
-  emptyCard: { borderRadius: radius.lg, padding: spacing.lg, backgroundColor: palette.surface, alignItems: 'center' },
+  emptyCard: { borderRadius: radius.lg, padding: spacing.lg, borderWidth: 1, alignItems: 'center' },
   emptyText: { ...typography.body, color: palette.textMuted },
 });
